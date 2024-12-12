@@ -1,14 +1,15 @@
 import profilepic from "../assets/profilepic.svg";
-const Header = () => {
+
+const UserHeader = () => {
   return (
     <div className="flex gap-2 items-center">
-      <img src={profilepic} alt="profile pic" height={50} width={50} />
+      <img src={profilepic} alt="profile pic" height={40} width={40} />
       <div className="flex flex-col">
-        <div className="font-normal text-xs text-[#00000054]">Welcome back</div>
         <div className="font-semibold text-base">Ashwini Kulkarni</div>
+        <div className="font-normal text-xs text-[#00000054]">2 hours ago</div>
       </div>
     </div>
   );
 };
 
-export default Header;
+export default UserHeader;
