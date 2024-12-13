@@ -2,13 +2,27 @@ import heroPattern from "../assets/photogrid.png";
 import vibesnaplogo from "../assets/vibesnaplogo.svg";
 import googleIcon from "../assets/googleicon.svg";
 import { useNavigate } from "react-router-dom";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../firebase/firebaseConfig";
 
 function Login() {
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate("/feed");
+  const handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user; // You can access user details here if needed
+      console.log("User logged in:", user);
+
+      // Navigate to the feed page after successful login
+      navigate("/feed");
+    } catch (error) {
+      console.error("Error during sign-in:", error.message);
+      alert("Login failed. Please try again.");
+    }
   };
+
   return (
     <div
       className="h-screen w-screen bg-contain bg-center"
