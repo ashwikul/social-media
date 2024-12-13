@@ -1,9 +1,15 @@
 import { useState } from "react";
 import PostAlbum from "./PostAlbum";
 import ProfileHeader from "./ProfileHeader";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const [isEditable, setIsEditable] = useState(false);
+  const navigate = useNavigate();
+
+  const handleCreatePost = () => {
+    navigate("/create");
+  };
   return (
     <div className="w-screen h-screen relative">
       <ProfileHeader />
@@ -79,7 +85,10 @@ const Profile = () => {
               <PostAlbum />
             </div>
           </div>
-          <div className="w-12 h-12 bg-black rounded-full text-white flex justify-center items-center text-4xl absolute bottom-4 right-4 font-light">
+          <div
+            className="w-12 h-12 bg-black rounded-full text-white flex justify-center items-center text-4xl absolute bottom-4 right-4 font-light"
+            onClick={handleCreatePost}
+          >
             +
           </div>
         </>
