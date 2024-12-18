@@ -59,7 +59,7 @@ const Feed = () => {
   console.log("posts", posts);
 
   return (
-    <div className="p-4">
+    <div className="sm:w-ful md:w-1/2 p-4">
       <Header />
       <h1 className="font-extrabold text-2xl mt-6 mb-4">Feeds</h1>
       {posts?.length > 0 ? (
@@ -67,7 +67,6 @@ const Feed = () => {
       ) : (
         <p>No posts available.</p>
       )}
-      {/* <Post /> */}
     </div>
   );
 };
