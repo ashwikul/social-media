@@ -41,7 +41,7 @@ const Profile = () => {
         </div>
       ) : (
         <>
-          <div className="p-4">
+          <div className="p-4 sm:w-ful md:w-1/2">
             <div className="flex justify-end ">
               <button
                 className="h-8 border border-[#00000057] rounded-3xl px-20 flex items-center font-bold text-xs"
@@ -71,7 +71,7 @@ const Profile = () => {
           </div>
         </>
       )}
-      {addNewPost && <NewPost />}
+      {addNewPost && <NewPost setAddNewPost={setAddNewPost} />}
     </div>
   );
 };
