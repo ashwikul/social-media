@@ -1,15 +1,12 @@
-import UserHeader from "./UserHeader";
+import PostHeader from "./PostHeader";
 import lebertyStatue from "../assets/libertyStatue.png";
 import heart from "../assets/HiHeart.svg";
 import send from "../assets/navigation-2.svg";
-const Post = () => {
+const Post = ({ post }) => {
   return (
-    <div className="w-full h-[341px] rounded-3xl bg-[#F7EBFF] p-3 flex flex-col gap-2">
-      <UserHeader />
-      <p className="text-xs font-normal">
-        Just arrived in New York City! Excited to explore the sights, sounds,
-        and energy of this amazing place. 🗽 #NYC #Travel
-      </p>
+    <div className="w-full h-[341px] rounded-3xl bg-[#F7EBFF] p-3 flex flex-col gap-2 mb-3">
+      <PostHeader userId={post.userId} />
+      <p className="text-xs font-normal">{post.content.caption}</p>
       <div>
         <img src={lebertyStatue} alt="photos"></img>
       </div>
