@@ -9,8 +9,22 @@ import NewPost from "./components/NewPost";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [uid, setUid] = useState("");
+  const [userData, setUserData] = useState([]);
+  const [posts, setPosts] = useState([]);
   return (
-    <SocialMediaContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+    <SocialMediaContext.Provider
+      value={{
+        isLoggedIn,
+        setIsLoggedIn,
+        uid,
+        setUid,
+        userData,
+        setUserData,
+        posts,
+        setPosts,
+      }}
+    >
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/feed" element={<Feed />} />

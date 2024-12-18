@@ -3,11 +3,13 @@ import vibesnaplogo from "../assets/vibesnaplogo.svg";
 import googleIcon from "../assets/googleicon.svg";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../firebase/firebaseConfig";
-
+import { auth, db } from "../../firebase/firebaseConfig";
+import { doc, setDoc } from "firebase/firestore"; // Firestore functions
+import { SocialMediaContext } from "../context/SocialMediaContext";
+import { useContext } from "react";
 function Login() {
   const navigate = useNavigate();
-
+  const { setUid } = useContext(SocialMediaContext);
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -15,7 +17,15 @@ function Login() {
       const user = result.user; // You can access user details here if needed
       console.log("User logged in:", user);
 
+      // Save user data to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        createdAt: new Date().toISOString(),
+      });
       // Navigate to the feed page after successful login
+      setUid(user.uid);
       navigate("/feed");
     } catch (error) {
       console.error("Error during sign-in:", error.message);

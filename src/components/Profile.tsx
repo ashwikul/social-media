@@ -2,13 +2,16 @@ import { useState } from "react";
 import PostAlbum from "./PostAlbum";
 import ProfileHeader from "./ProfileHeader";
 import { useNavigate } from "react-router-dom";
+import NewPost from "./NewPost";
 
 const Profile = () => {
   const [isEditable, setIsEditable] = useState(false);
-  const navigate = useNavigate();
+  const [addNewPost, setAddNewPost] = useState(false);
+  // const navigate = useNavigate();
 
   const handleCreatePost = () => {
-    navigate("/create");
+    // navigate("/create");
+    setAddNewPost(true);
   };
   return (
     <div className="w-screen h-screen relative">
@@ -60,31 +63,6 @@ const Profile = () => {
               <PostAlbum />
             </div>
           </div>
-          <div className="w-12 h-12 bg-black rounded-full text-white flex justify-center items-center text-4xl absolute bottom-4 right-4 font-light">
-            +
-          </div>
-          <div className="p-4">
-            <div className="flex justify-end ">
-              <button
-                className="h-8 border border-[#00000057] rounded-3xl px-20 flex items-center font-bold text-xs"
-                onClick={() => setIsEditable(true)}
-              >
-                Edit Profile
-              </button>
-            </div>
-
-            <h3 className="text-2xl font-extrabold my-4">Ashwini Kulkarni</h3>
-            <p className="font-normal text-sm mb-6">
-              Just someone who loves designing, sketching, and finding beauty in
-              the little things 💕
-            </p>
-            <p className="text-lg font-semibold">My Posts</p>
-            <div className="grid grid-cols-2 gap-4">
-              <PostAlbum />
-              <PostAlbum />
-              <PostAlbum />
-            </div>
-          </div>
           <div
             className="w-12 h-12 bg-black rounded-full text-white flex justify-center items-center text-4xl absolute bottom-4 right-4 font-light"
             onClick={handleCreatePost}
@@ -93,6 +71,7 @@ const Profile = () => {
           </div>
         </>
       )}
+      {addNewPost && <NewPost />}
     </div>
   );
 };
