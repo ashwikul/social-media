@@ -1,29 +1,36 @@
 import profilepic from "../assets/profilepic.svg";
+import placeholderPic from "../assets/placeholderPic.png";
 import { useNavigate } from "react-router-dom";
 import { SocialMediaContext } from "../context/SocialMediaContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { auth, db } from "../../firebase/firebaseConfig"; // Firestore db
 
 const Header = () => {
   const navigate = useNavigate();
   const { userData } = useContext(SocialMediaContext);
-  // console.log("userData", userData.photoURL);
-
-  const user = auth.currentUser;
-  console.log("current user in header", user);
+  const [imgSrc, setImgSrc] = useState(userData?.photoURL || placeholderPic);
 
   const handleProfile = () => {
     navigate("/profile");
   };
+
+  const handleImgError = () => {
+    setImgSrc(placeholderPic);
+  };
+
   return (
-    <div className="flex gap-2 items-center">
-      <img
-        src={userData?.photoURL || profilepic}
-        alt="profile pic"
-        height={50}
-        width={50}
-        onClick={handleProfile}
-      />
+    <div className="flex gap-2 items-center ">
+      <div className="rounded-full overflow-hidden w-12 h-12 cursor-pointer">
+        <img
+          // src={userData?.photoURL || placeholderPic}
+          src={imgSrc}
+          alt="profile pic"
+          className="w-full h-full object-cover "
+          onClick={handleProfile}
+          onError={handleImgError}
+        />
+      </div>
+
       <div className="flex flex-col">
         <div className="font-normal text-xs text-[#00000054]">Welcome back</div>
         <div className="font-semibold text-base">{userData?.name}</div>

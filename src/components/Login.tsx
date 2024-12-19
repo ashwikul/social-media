@@ -4,7 +4,7 @@ import googleIcon from "../assets/googleicon.svg";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db } from "../../firebase/firebaseConfig";
-import { doc, setDoc } from "firebase/firestore"; // Firestore functions
+import { doc, setDoc, getDoc } from "firebase/firestore"; // Firestore functions
 import { SocialMediaContext } from "../context/SocialMediaContext";
 import { useContext } from "react";
 function Login() {
@@ -16,16 +16,36 @@ function Login() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user; // You can access user details here if needed
       console.log("User logged in:", user);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const accessToken = credential?.accessToken; // Extract access token
+      console.log("Access Token:", accessToken);
+
+      // Save the access token to localStorage
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("uid", user.uid);
 
       // Save user data to Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        name: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        createdAt: new Date().toISOString(),
-      });
+      // await setDoc(doc(db, "users", user.uid), {
+      //   name: user.displayName,
+      //   email: user.email,
+      //   photoURL: user.photoURL,
+      //   createdAt: new Date().toISOString(),
+      //   userId: user.uid,
+      // });
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          createdAt: new Date().toISOString(),
+          userId: user.uid,
+        });
+      }
       // Navigate to the feed page after successful login
-      setUid(user.uid);
+      // setUid(user.uid);
       navigate("/feed");
     } catch (error) {
       console.error("Error during sign-in:", error.message);
