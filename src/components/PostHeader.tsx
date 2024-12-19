@@ -1,14 +1,25 @@
-import profilepic from "../assets/profilepic.svg";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import placeholderPic from "../assets/placeholderPic.png";
 
-const PostHeader = ({ userId, timestamp }) => {
-  const [user, setUser] = useState(null);
-  // console.log("post header user", userId);
-  const [imgSrc, setImgSrc] = useState("");
+interface PostHeaderProps {
+  userId: string;
+  timestamp: { seconds: number; nanoseconds: number }; // Adjust this type to match the timestamp structure in Firestore
+}
 
-  const calculateTime = (timestamp) => {
+interface User {
+  name: string;
+  photoURL: string;
+}
+
+const PostHeader: React.FC<PostHeaderProps> = ({ userId, timestamp }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [imgSrc, setImgSrc] = useState<string>("");
+
+  const calculateTime = (timestamp: {
+    seconds: number;
+    nanoseconds: number;
+  }) => {
     // Step 1: Convert the timestamp to a Date object
     const timestampDate = new Date(
       (timestamp.seconds + timestamp.nanoseconds / 1e9) * 1000
@@ -16,7 +27,8 @@ const PostHeader = ({ userId, timestamp }) => {
 
     // Step 2: Calculate the difference from the current time
     const now = new Date();
-    const timeDifference = now - timestampDate; // Difference in milliseconds
+    // const timeDifference = now - timestampDate; // Difference in milliseconds
+    const timeDifference = now.getTime() - timestampDate.getTime(); // Difference in milliseconds
 
     // Step 3: Convert time difference into human-readable format
     const seconds = Math.floor(timeDifference / 1000);
@@ -39,24 +51,25 @@ const PostHeader = ({ userId, timestamp }) => {
   };
 
   useEffect(() => {
-    // Fetch user data from Firestore when `uid` is available
+    // Fetch user data from Firestore when `userId` is available
     const fetchUserData = async () => {
       const db = getFirestore();
 
-      const docRef = doc(db, "users", userId); // Assume 'users' is the collection
+      const docRef = doc(db, "users", userId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setUser(docSnap.data());
+        setUser(docSnap.data() as User);
         setImgSrc(docSnap.data().photoURL);
       } else {
         console.log("No such document!");
       }
     };
 
-    if (useId) {
+    if (userId) {
       fetchUserData();
     }
-  }, [useId]);
+  }, [userId]);
+
   console.log("user", user);
 
   return (

@@ -2,27 +2,25 @@ import heroPattern from "../assets/photogrid.png";
 import vibesnaplogo from "../assets/vibesnaplogo.svg";
 import googleIcon from "../assets/googleicon.svg";
 import { useNavigate } from "react-router-dom";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  UserCredential,
+} from "firebase/auth";
 import { auth, db } from "../../firebase/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore"; // Firestore functions
-import { SocialMediaContext } from "../context/SocialMediaContext";
-import { useContext } from "react";
-function Login() {
+
+const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { setUid } = useContext(SocialMediaContext);
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
+      const result: UserCredential = await signInWithPopup(auth, provider);
       const user = result.user; // You can access user details here if needed
       console.log("User logged in:", user);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const accessToken = credential?.accessToken; // Extract access token
       console.log("Access Token:", accessToken);
-
-      // Save the access token to localStorage
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("uid", user.uid);
 
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
@@ -39,7 +37,7 @@ function Login() {
       // Navigate to the feed page after successful login
       navigate("/feed");
     } catch (error) {
-      console.error("Error during sign-in:", error.message);
+      console.error("Error during sign-in:", error);
       alert("Login failed. Please try again.");
     }
   };
@@ -73,6 +71,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;

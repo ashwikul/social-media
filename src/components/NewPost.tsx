@@ -4,22 +4,36 @@ import photo from "../assets/photos.svg";
 import video from "../assets/video.svg";
 import backArrowBlack from "../assets/backArrowBlack.svg";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "../../firebase/firebaseConfig"; // Firestore db
+import { auth, db } from "../../firebase/firebaseConfig.js"; // Firestore db
 import { collection, addDoc } from "firebase/firestore";
 import { useState } from "react";
-
-import { useContext } from "react";
-import { SocialMediaContext } from "../context/SocialMediaContext";
-
-import supabase from "../../supabaseClient.js";
+import supabase from "../../supabaseClient.ts";
 import deleteIcon from "../assets/delete.svg";
+import { PostType } from "../types";
 
-const NewPost = ({ setAddNewPost }) => {
-  // console.log("supabase", supabase);
-  const { setPosts } = useContext(SocialMediaContext);
+// Define the type for the response
+interface PublicUrlResponse {
+  data: {
+    publicUrl: string;
+  };
+  error?: string; // Optional error field
+}
 
+interface NewPostProps {
+  setAddNewPost: (newPost: any) => void; // Adjust the type based on what you're passing
+}
+
+const NewPost: React.FC<NewPostProps> = ({ setAddNewPost }) => {
   const navigate = useNavigate();
-  const [newPost, setNewPost] = useState({ caption: "", gallery: [] });
+  // const [newPost, setNewPost] = useState<PostType>();
+  const [newPost, setNewPost] = useState<PostType>({
+    caption: "",
+    gallery: [],
+    postId: "", // Default value for postId
+    userId: "",
+    likes: 0,
+    timestamp: { seconds: 0, nanoseconds: 0 }, // Assuming timestamp is a Firestore timestamp object
+  });
   const user = auth.currentUser;
   const [currentImageIndex, setCurrentImageIndex] = useState(0); // Track current image index
   const [isLoading, setIsLoading] = useState(false);
@@ -32,10 +46,10 @@ const NewPost = ({ setAddNewPost }) => {
     try {
       // Prepare post data with gallery URLs
       const postData = {
-        caption: newPost.caption,
-        gallery: newPost.gallery, // Use the gallery array which already has URLs
+        caption: newPost?.caption,
+        gallery: newPost?.gallery, // Use the gallery array which already has URLs
         timestamp: new Date(),
-        userId: user.uid, // Add user info if necessary
+        userId: user?.uid, // Add user info if necessary
         likes: 0,
       };
 
@@ -45,22 +59,33 @@ const NewPost = ({ setAddNewPost }) => {
       console.log("Post added successfully with ID: ", docRef.id);
 
       // Clear the form after submission
-      setNewPost({ caption: "", gallery: [] });
+      setNewPost({
+        caption: "",
+        gallery: [],
+        postId: "", // Default value for postId
+        userId: "",
+        likes: 0,
+        timestamp: { seconds: 0, nanoseconds: 0 }, // Assuming timestamp is a Firestore timestamp object
+      });
 
       // Redirect to profile page after post submission
       navigate("/feed");
       setAddNewPost(false);
     } catch (error) {
-      console.error("Error adding post to Firestore: ", error.message);
+      console.error("Error adding post to Firestore: ", error);
     }
   };
 
-  const handleFileChange = async (event) => {
-    const files = Array.from(event.target.files); // Convert FileList to Array
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files ? Array.from(event.target.files) : []; // Convert FileList to Array
     if (files.length > 0) {
       const file = files[0]; // Handle a single file
       console.log("file", file);
-      const fileType = file.type.startsWith("video/") ? "video" : "image";
+      const fileType: "image" | "video" = file.type.startsWith("video/")
+        ? "video"
+        : "image";
 
       const fileName = `${Date.now()}-${file.name}`; // Generate a unique file name
 
@@ -70,7 +95,7 @@ const NewPost = ({ setAddNewPost }) => {
       console.log("filePath", filePath);
       setIsLoading(true);
       // Upload the file to Supabase Storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("gallery") // Name of the Supabase bucket
         .upload(filePath, file, { upsert: true });
 
@@ -79,19 +104,15 @@ const NewPost = ({ setAddNewPost }) => {
         return;
       }
 
-      console.log("Upload data:", data);
       console.error("Upload error:", error);
 
       // Get the public URL of the uploaded file
       const { data: publicUrlData, error: urlError } = supabase.storage
         .from("gallery")
-        .getPublicUrl(filePath);
-
-      console.log("Public URL:", publicUrlData.publicUrl);
-      console.error("URL Error:", urlError);
+        .getPublicUrl(filePath) as PublicUrlResponse;
 
       if (urlError) {
-        console.error("Error getting public URL:", urlError.message);
+        console.error("Error getting public URL:", urlError);
         return;
       }
       setIsLoading(false);
@@ -99,7 +120,7 @@ const NewPost = ({ setAddNewPost }) => {
       // Add the file to the gallery with its type
       setNewPost((prevPost) => {
         const updatedGallery = [
-          ...prevPost.gallery,
+          ...(prevPost?.gallery || []),
           { url: publicUrlData.publicUrl, type: fileType },
         ];
         setCurrentImageIndex(updatedGallery.length - 1); // Set to the newly added image index
@@ -200,7 +221,7 @@ const NewPost = ({ setAddNewPost }) => {
               </div>
             </div>
             <div className="flex justify-center gap-2 mt-2">
-              {newPost.gallery.map((item, index) => (
+              {newPost.gallery.map((_, index) => (
                 <span
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}

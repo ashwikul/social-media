@@ -1,24 +1,48 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig"; // Adjust the import path to your Firebase configuration
+import { PostType } from "../types";
 
-const PostDetail = () => {
-  const { postId } = useParams(); // Extract postId from URL
-  const [post, setPost] = useState(null);
+const PostDetail: React.FC = () => {
+  const { postId } = useParams<{ postId: string }>();
+  const [post, setPost] = useState<PostType | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
+      if (!postId) {
+        setError("Post ID is missing");
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const postRef = doc(db, "posts", postId); // Use db directly
         const postSnapshot = await getDoc(postRef); // Fetch the document
 
+        // if (postSnapshot.exists()) {
+        //   setPost({ id: postSnapshot.id, ...postSnapshot.data() } as PostType); // Set post data
+        // } else {
+        //   setError("Post not found."); // Handle case when post doesn't exist
+        // }
         if (postSnapshot.exists()) {
-          setPost({ id: postSnapshot.id, ...postSnapshot.data() }); // Set post data
+          const postData = postSnapshot.data();
+          if (postData) {
+            const fullPost: PostType = {
+              // id: postSnapshot.id,
+              postId: postData.postId || "", // Assuming it's required
+              userId: postData.userId || "",
+              caption: postData.caption || "", // Ensure fields are present or provide defaults
+              gallery: postData.gallery || [],
+              likes: postData.likes || 0,
+              timestamp: postData.timestamp || { seconds: 0, nanoseconds: 0 }, // Fallback timestamp
+            };
+            setPost(fullPost); // Safely set the state with full PostType data
+          }
         } else {
-          setError("Post not found."); // Handle case when post doesn't exist
+          setError("Post not found.");
         }
       } catch (err) {
         console.error("Error fetching post:", err);

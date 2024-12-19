@@ -9,14 +9,22 @@ import instagram from "../assets/instagram.svg";
 import copy from "../assets/copy.svg";
 import SocialMediaIcon from "./SocialMediaIcon";
 import { useState } from "react";
+import { PostType } from "../types";
 
-const Share = ({ post, setIsPostShared }) => {
-  const postUrl = `http://localhost:5173/posts/${post.id}`;
+interface ShareProps {
+  post: PostType;
+  setIsPostShared: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Share: React.FC<ShareProps> = ({ post, setIsPostShared }) => {
+  const domain = import.meta.env.VITE_APP_URL;
+  // const postUrl = `http://localhost:5173/posts/${post.postId}`;
+  const postUrl = `${domain}/posts/${post.postId}`;
   const [copySuccess, setCopySuccess] = useState(false); // State for copy success
 
   // Function to handle sharing via social media
 
-  const handleShare = (platform) => {
+  const handleShare = (platform: string) => {
     let shareUrl = "";
     switch (platform) {
       case "facebook":
@@ -98,7 +106,7 @@ const Share = ({ post, setIsPostShared }) => {
         <div
           className="grid grid-cols-4 gap-4"
           onClick={(e) => {
-            handleShare(e.target.alt);
+            handleShare((e.target as HTMLImageElement).alt);
           }}
         >
           <SocialMediaIcon

@@ -9,29 +9,35 @@ import {
   collection,
   getDocs,
 } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { UserData, PostType } from "../types";
 
 const Feed = () => {
-  const { uid, setUserData, posts, setPosts } = useContext(SocialMediaContext);
+  const { setUserData, posts, setPosts } = useContext(SocialMediaContext) || {};
   const [isLoading, setIsLoading] = useState(true); // Loading state for user and posts
   const [error, setError] = useState(""); // Error handling state
 
   useEffect(() => {
     const auth = getAuth();
-    const provider = new GoogleAuthProvider();
 
     // Listen for changes in the user's authentication state
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is signed in, so you can fetch user data and posts
         console.log("User is already signed in:", user);
 
-        // Fetch user data
         const db = getFirestore();
-        const docRef = doc(db, "users", user.uid); // Assuming 'users' is your collection
+
+        // Fetch user data
+        const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
+
+        if (docSnap.exists() && setUserData) {
+          // Typecast Firestore data to match UserData
+          const userData = {
+            userId: user.uid,
+            ...docSnap.data(),
+          } as UserData;
+          setUserData(userData);
         } else {
           console.log("No such document!");
         }
@@ -40,22 +46,20 @@ const Feed = () => {
         const postsCollection = collection(db, "posts");
         const querySnapshot = await getDocs(postsCollection);
         const fetchedPosts = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
+          postId: doc.id,
+          // id: doc.id,
           ...doc.data(),
-        }));
-
-        console.log("fetchedPosts", fetchedPosts);
+        })) as PostType[];
 
         // Sort posts based on timestamp (most recent first)
-        const sortedPosts = fetchedPosts.sort((a, b) => {
-          return b.timestamp - a.timestamp;
-        });
+        const sortedPosts = fetchedPosts.sort(
+          (a, b) => Number(b.timestamp) - Number(a.timestamp)
+        );
 
-        setPosts(sortedPosts);
+        setPosts && setPosts(sortedPosts);
 
         setIsLoading(false);
       } else {
-        // User is not signed in, show an error or login prompt
         console.log("No user signed in");
         setError("No user signed in. Please log in.");
         setIsLoading(false);
@@ -85,8 +89,8 @@ const Feed = () => {
       <div className="w-full lg:w-1/2 bg-white p-4">
         <Header />
         <h1 className="font-extrabold text-2xl mt-6 mb-4">Feeds</h1>
-        {posts?.length > 0 ? (
-          posts.map((post) => <Post key={post.id} post={post} />)
+        {posts && posts?.length > 0 ? (
+          posts.map((post) => <Post key={post.postId} post={post} />)
         ) : (
           <p>No posts available.</p>
         )}

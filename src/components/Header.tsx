@@ -1,9 +1,7 @@
-import profilepic from "../assets/profilepic.svg";
 import placeholderPic from "../assets/placeholderPic.png";
 import { useNavigate } from "react-router-dom";
 import { SocialMediaContext } from "../context/SocialMediaContext";
 import { useContext, useState } from "react";
-import { auth, db } from "../../firebase/firebaseConfig"; // Firestore db
 
 const Header = () => {
   const navigate = useNavigate();

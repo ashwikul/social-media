@@ -1,5 +1,4 @@
 import PostHeader from "./PostHeader";
-import lebertyStatue from "../assets/libertyStatue.png";
 import love from "../assets/HiHeart.svg";
 import heart from "../assets/greyHeart.svg";
 import send from "../assets/navigation-2.svg";
@@ -7,18 +6,23 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig"; // Firestore db
 import { useState } from "react";
 import Share from "./Share";
+import { PostType } from "../types";
 
-const Post = ({ post }) => {
+interface PostProps {
+  post: PostType;
+}
+
+const Post: React.FC<PostProps> = ({ post }) => {
   console.log("post", post);
   const [isPostLiked, setIsPostLiked] = useState(post.likes > 0);
   const [likes, setLikes] = useState(post.likes);
   const [isPostShared, setIsPostShared] = useState(false);
 
   // Function to update Firestore when a like or dislike occurs
-  const updateLikesInFirestore = async (newLikesCount) => {
+  const updateLikesInFirestore = async (newLikesCount: number) => {
     try {
-      const postRef = doc(db, "posts", post.id);
-      console.log("postRef", postRef, post.id);
+      const postRef = doc(db, "posts", post.postId);
+      console.log("postRef", postRef, post.postId);
 
       await updateDoc(postRef, {
         likes: newLikesCount,
@@ -75,7 +79,6 @@ const Post = ({ post }) => {
                   src={p.url}
                   alt="post media"
                   className="w-full h-full object-cover"
-                  onError={(e) => (e.target.src = lebertyStatue)} // Fallback image
                 />
               )}
             </div>
@@ -96,8 +99,7 @@ const Post = ({ post }) => {
         </div>
         <button
           className="flex gap-1 items-center justify-center bg-[#00000012] rounded-3xl px-2 py-1"
-          onClick={(event) => {
-            // event.stopPropagation();
+          onClick={() => {
             setIsPostShared(true);
           }}
         >
