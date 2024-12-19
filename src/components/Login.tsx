@@ -24,14 +24,6 @@ function Login() {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("uid", user.uid);
 
-      // Save user data to Firestore
-      // await setDoc(doc(db, "users", user.uid), {
-      //   name: user.displayName,
-      //   email: user.email,
-      //   photoURL: user.photoURL,
-      //   createdAt: new Date().toISOString(),
-      //   userId: user.uid,
-      // });
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -45,7 +37,6 @@ function Login() {
         });
       }
       // Navigate to the feed page after successful login
-      // setUid(user.uid);
       navigate("/feed");
     } catch (error) {
       console.error("Error during sign-in:", error.message);
@@ -54,27 +45,29 @@ function Login() {
   };
 
   return (
-    <div
-      className="h-screen w-screen bg-contain bg-center"
-      style={{
-        backgroundImage: `url(${heroPattern})`,
-      }}
-    >
-      <div className="w-full bg-slate-50 h-1/3 absolute bottom-0 rounded-t-[3.75rem] flex flex-col  items-center ">
-        <div className="flex flex-col  items-center p-10">
-          <div className="flex gap-2 items-center">
-            <img src={vibesnaplogo} alt="logo" />
-            <div className="font-semibold text-lg">Vibesnap</div>
+    <div className="bg-slate-100 h-screen flex justify-center">
+      <div
+        className="w-full lg:w-1/2 h-full bg-white bg-contain"
+        style={{
+          backgroundImage: `url(${heroPattern})`,
+        }}
+      >
+        <div className="w-[inherit] bg-slate-50 h-1/3 absolute bottom-0 rounded-t-[3.75rem] flex flex-col  items-center ">
+          <div className="flex flex-col  items-center p-10">
+            <div className="flex gap-2 items-center">
+              <img src={vibesnaplogo} alt="logo" />
+              <div className="font-semibold text-lg">Vibesnap</div>
+            </div>
+            <div>Moments That Matter, Shared Forever.</div>
           </div>
-          <div>Moments That Matter, Shared Forever.</div>
-        </div>
-        <div
-          className="h-12 w-56 bg-[#292929] rounded-3xl flex gap-2 justify-center items-center"
-          onClick={handleLogin}
-        >
-          <img src={googleIcon} alt="google" />
-          <div className="text-base font-bold text-white">
-            Continue with Google
+          <div
+            className="h-12 w-56 bg-[#292929] rounded-3xl flex gap-2 justify-center items-center"
+            onClick={handleLogin}
+          >
+            <img src={googleIcon} alt="google" />
+            <div className="text-base font-bold text-white cursor-pointer">
+              Continue with Google
+            </div>
           </div>
         </div>
       </div>

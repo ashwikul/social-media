@@ -9,14 +9,7 @@ import {
   collection,
   getDocs,
 } from "firebase/firestore";
-import {
-  getAuth,
-  signInWithCredential,
-  GoogleAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged,
-} from "firebase/auth";
-import { Link } from "react-router-dom";
+import { getAuth, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 
 const Feed = () => {
   const { uid, setUserData, posts, setPosts } = useContext(SocialMediaContext);
@@ -50,7 +43,15 @@ const Feed = () => {
           id: doc.id,
           ...doc.data(),
         }));
-        setPosts(fetchedPosts);
+
+        console.log("fetchedPosts", fetchedPosts);
+
+        // Sort posts based on timestamp (most recent first)
+        const sortedPosts = fetchedPosts.sort((a, b) => {
+          return b.timestamp - a.timestamp;
+        });
+
+        setPosts(sortedPosts);
 
         setIsLoading(false);
       } else {
@@ -68,7 +69,6 @@ const Feed = () => {
   console.log("posts", posts);
 
   if (isLoading) {
-    // return <div>Loading...</div>; // Show loading state while fetching data
     return (
       <div className="absolute top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center">
         <div className="profile-loader"></div>
@@ -81,21 +81,16 @@ const Feed = () => {
   }
 
   return (
-    <div className="sm:w-ful md:w-1/2 p-4">
-      <Header />
-      <h1 className="font-extrabold text-2xl mt-6 mb-4">Feeds</h1>
-      {posts?.length > 0 ? (
-        posts.map((post) => <Post key={post.id} post={post} />)
-      ) : (
-        // posts.map((post) => (
-        //   <div key={post.id}>
-        //     <Link to={`/posts/${post.id}`}>
-        //       <Post post={post} />
-        //     </Link>{" "}
-        //   </div>
-        // ))
-        <p>No posts available.</p>
-      )}
+    <div className="bg-slate-100  flex justify-center">
+      <div className="w-full lg:w-1/2 bg-white p-4">
+        <Header />
+        <h1 className="font-extrabold text-2xl mt-6 mb-4">Feeds</h1>
+        {posts?.length > 0 ? (
+          posts.map((post) => <Post key={post.id} post={post} />)
+        ) : (
+          <p>No posts available.</p>
+        )}
+      </div>
     </div>
   );
 };
