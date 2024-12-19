@@ -16,6 +16,7 @@ import {
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
+import { Link } from "react-router-dom";
 
 const Feed = () => {
   const { uid, setUserData, posts, setPosts } = useContext(SocialMediaContext);
@@ -86,6 +87,13 @@ const Feed = () => {
       {posts?.length > 0 ? (
         posts.map((post) => <Post key={post.id} post={post} />)
       ) : (
+        // posts.map((post) => (
+        //   <div key={post.id}>
+        //     <Link to={`/posts/${post.id}`}>
+        //       <Post post={post} />
+        //     </Link>{" "}
+        //   </div>
+        // ))
         <p>No posts available.</p>
       )}
     </div>
