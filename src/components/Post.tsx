@@ -6,11 +6,13 @@ import send from "../assets/navigation-2.svg";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig"; // Firestore db
 import { useState } from "react";
+import Share from "./Share";
 
 const Post = ({ post }) => {
   console.log("post", post);
   const [isPostLiked, setIsPostLiked] = useState(post.likes > 0);
   const [likes, setLikes] = useState(post.likes);
+  const [isPostShared, setIsPostShared] = useState(false);
 
   // Function to update Firestore when a like or dislike occurs
   const updateLikesInFirestore = async (newLikesCount) => {
@@ -92,11 +94,18 @@ const Post = ({ post }) => {
           </div>
           <div className="text-red-700">{likes}</div>
         </div>
-        <button className="flex gap-1 items-center justify-center bg-[#00000012] rounded-3xl px-2 py-1">
+        <button
+          className="flex gap-1 items-center justify-center bg-[#00000012] rounded-3xl px-2 py-1"
+          onClick={(event) => {
+            // event.stopPropagation();
+            setIsPostShared(true);
+          }}
+        >
           <img src={send} height={20} width={20} />
           <div className="font-semibold text-sm">Share</div>
         </button>
       </div>
+      {isPostShared && <Share post={post} setIsPostShared={setIsPostShared} />}
     </div>
   );
 };

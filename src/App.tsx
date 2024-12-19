@@ -6,6 +6,7 @@ import { Routes, Route } from "react-router-dom";
 import Profile from "./components/Profile";
 import Feed from "./components/Feed";
 import NewPost from "./components/NewPost";
+import PostDetail from "./components/PostDetail";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -30,6 +31,7 @@ function App() {
         <Route path="/feed" element={<Feed />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/create" element={<NewPost />} />
+        <Route path="/posts/:postId" element={<PostDetail />} />
       </Routes>
     </SocialMediaContext.Provider>
   );
