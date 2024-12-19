@@ -48,7 +48,7 @@ const NewPost = ({ setAddNewPost }) => {
       setNewPost({ caption: "", gallery: [] });
 
       // Redirect to profile page after post submission
-      navigate("/profile");
+      navigate("/feed");
       setAddNewPost(false);
     } catch (error) {
       console.error("Error adding post to Firestore: ", error.message);

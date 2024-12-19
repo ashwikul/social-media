@@ -133,7 +133,7 @@ const ProfileHeader = ({
   return (
     <>
       <div
-        className="h-1/4 w-full bg-cover bg-center rounded-b-2xl relative flex justify-center items-center bg-slate-200"
+        className="h-1/5 md:h-2/5 lg:h-1/4 w-full bg-cover bg-center rounded-b-2xl relative flex justify-center items-center bg-slate-200"
         style={{
           backgroundImage: `url(${heroPic})`,
         }}
@@ -183,13 +183,16 @@ const ProfileHeader = ({
           </div>
         )}
       </div>
-      <div className="absolute top-40 left-4 rounded-full overflow-hidden w-28 h-28 bg-white">
-        <img
-          src={profilePic}
-          alt="profile picture"
-          className="w-full h-full object-cover"
-          onError={handleImgError}
-        />
+      <div className="absolute top-20 md:top-60  lg:top-40 lg:left-4 rounded-full bg-white">
+        <div className=" rounded-full overflow-hidden w-28 h-28">
+          <img
+            src={profilePic}
+            alt="profile picture"
+            className="w-full h-full object-cover"
+            onError={handleImgError}
+          />
+        </div>
+
         {isEditable && (
           <div className="w-6 h-6 bg-slate-200 rounded-full flex justify-center items-center absolute bottom-3 right-0 ">
             <input
