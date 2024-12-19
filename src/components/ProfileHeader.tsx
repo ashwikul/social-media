@@ -1,30 +1,41 @@
 // import profilepic from "../assets/profilepic.svg";
 import pencil from "../assets/HiPencil.svg";
-import { useEffect, useState } from "react";
-import supabase from "../../supabaseClient.js";
+import { FC, useEffect, useState } from "react";
+import supabase from "../../supabaseClient.ts";
 import placeholderPic from "../assets/placeholderPic.png";
 import backArrow from "../assets/backArrowWhite.svg";
 import { useNavigate } from "react-router-dom";
+import { UserData } from "../types";
 
-const ProfileHeader = ({
+interface HeaderProps {
+  isEditable: boolean;
+  setIsEditable: React.Dispatch<React.SetStateAction<boolean>>;
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
+  userData: UserData;
+}
+const ProfileHeader: FC<HeaderProps> = ({
   isEditable,
   setIsEditable,
   setUserData,
   userData,
 }) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [profilePic, setProfilePic] = useState("");
-  const [heroPic, setHeroPic] = useState("");
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [profilePic, setProfilePic] = useState<string>(placeholderPic);
+  const [heroPic, setHeroPic] = useState<string>(placeholderPic);
 
   useEffect(() => {
     if (userData) {
       setProfilePic(userData?.photoURL || placeholderPic);
-      setHeroPic(userData.heroURL);
+      setHeroPic(userData?.heroURL || placeholderPic);
     }
   }, [userData]);
 
-  const handleProfilePic = async (event) => {
+  const handleProfilePic = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!event.target.files) return;
     const files = Array.from(event.target.files); // Convert FileList to Array
     if (files.length > 0) {
       const file = files[0]; // Handle a single file
@@ -50,31 +61,34 @@ const ProfileHeader = ({
       console.error("Upload error:", error);
 
       // Get the public URL of the uploaded file
-      const { data: publicUrlData, error: urlError } = supabase.storage
+      const { data: publicUrlData } = supabase.storage
         .from("gallery")
         .getPublicUrl(filePath);
 
-      console.log("Public URL:", publicUrlData.publicUrl);
-      console.error("URL Error:", urlError);
-
-      if (urlError) {
-        console.error("Error getting public URL:", urlError.message);
+      if (!publicUrlData) {
+        console.error("Error getting public URL");
+        setIsLoading(false);
         return;
       }
 
-      // Add the file to the gallery with its type
-
-      console.log("userdata before adding pic", userData);
-
+      // setUserData((prev) => ({
+      //   ...prev,
+      //   photoURL: publicUrlData.publicUrl,
+      // }));
       setUserData((prev) => ({
-        ...prev,
-        photoURL: publicUrlData.publicUrl,
+        userId: prev?.userId ?? "", // Ensures userId is always a string, fallback to empty string if undefined or null
+        name: prev?.name,
+        bio: prev?.bio,
+        photoURL: publicUrlData.publicUrl, // Assuming publicUrlData is defined somewhere in your code
+        heroURL: prev?.heroURL,
       }));
+
       setIsLoading(false);
     }
   };
 
-  const handleCoverPic = async (event) => {
+  const handleCoverPic = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) return;
     const files = Array.from(event.target.files); // Convert FileList to Array
     if (files.length > 0) {
       const file = files[0]; // Handle a single file
@@ -100,15 +114,15 @@ const ProfileHeader = ({
       console.error("Upload error:", error);
 
       // Get the public URL of the uploaded file
-      const { data: publicUrlData, error: urlError } = supabase.storage
+      const { data: publicUrlData } = supabase.storage
         .from("gallery")
         .getPublicUrl(filePath);
 
       console.log("Public URL:", publicUrlData.publicUrl);
-      console.error("URL Error:", urlError);
 
-      if (urlError) {
-        console.error("Error getting public URL:", urlError.message);
+      if (!publicUrlData) {
+        console.error("Error getting public URL");
+        setIsLoading(false);
         return;
       }
       setIsLoading(false);
@@ -116,8 +130,16 @@ const ProfileHeader = ({
 
       console.log("userdata before adding pic", userData);
 
+      //   setUserData((prev) => ({
+      //     ...prev,
+      //     heroURL: publicUrlData.publicUrl,
+      //   }));
+
       setUserData((prev) => ({
-        ...prev,
+        userId: prev?.userId ?? "", // Ensures userId is always a string, fallback to empty string if undefined or null
+        name: prev?.name,
+        bio: prev?.bio,
+        photoURL: prev?.photoURL, // Assuming publicUrlData is defined somewhere in your code
         heroURL: publicUrlData.publicUrl,
       }));
     }
@@ -184,7 +206,7 @@ const ProfileHeader = ({
         )}
       </div>
       <div className="absolute top-20 md:top-60  lg:top-40 lg:left-4 rounded-full bg-white">
-        <div className=" rounded-full overflow-hidden w-28 h-28">
+        <div className="rounded-full overflow-hidden w-28 h-28">
           <img
             src={profilePic}
             alt="profile picture"

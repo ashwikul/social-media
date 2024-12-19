@@ -1,10 +1,17 @@
-import React from "react";
+interface SocialMediaIconProps {
+  label: string;
+  src: string;
+  bgColor: string;
+}
 
-const SocialMediaIcon = ({ label, src, bgColor }) => {
+const SocialMediaIcon: React.FC<SocialMediaIconProps> = ({
+  label,
+  src,
+  bgColor,
+}) => {
   return (
     <div className="flex flex-col gap-1 justify-center items-center">
       <button
-        // onClick={() => handleShare("twitter")}
         className={`rounded-full p-4 w-fit`}
         style={{ backgroundColor: bgColor }}
       >

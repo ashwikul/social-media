@@ -1,6 +1,11 @@
 import heart from "../assets/greyHeart.svg";
+import { PostType } from "../types";
 
-const PostAlbum = ({ album }) => {
+interface PostAlbumProps {
+  album: PostType;
+}
+
+const PostAlbum: React.FC<PostAlbumProps> = ({ album }) => {
   const firstMedia = album.gallery[0];
   const isVideo = firstMedia?.url?.endsWith(".mp4"); // or any other check based on media type
 
@@ -9,7 +14,6 @@ const PostAlbum = ({ album }) => {
       {isVideo ? (
         <video
           src={firstMedia.url}
-          alt="video"
           className="w-full h-full object-cover"
           controls
         />

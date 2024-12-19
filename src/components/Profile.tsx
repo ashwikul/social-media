@@ -4,54 +4,61 @@ import ProfileHeader from "./ProfileHeader";
 import NewPost from "./NewPost";
 import { SocialMediaContext } from "../context/SocialMediaContext";
 import { getFirestore, doc, updateDoc } from "firebase/firestore";
+import { PostType } from "../types";
 
 const Profile = () => {
-  const { setUserData, userData, posts } = useContext(SocialMediaContext);
-  const [isEditable, setIsEditable] = useState(false);
-  const [addNewPost, setAddNewPost] = useState(false);
-  const [name, setName] = useState("");
-  const [bio, setBio] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [albums, setAlbums] = useState([]);
+  const context = useContext(SocialMediaContext);
+  const { setUserData, userData, posts } = context; // Destructure with fallback
+
+  const [isEditable, setIsEditable] = useState<boolean>(false);
+  const [addNewPost, setAddNewPost] = useState<boolean>(false);
+  const [name, setName] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [albums, setAlbums] = useState<PostType[]>([]);
 
   console.log("posts in profile", posts);
   console.log("user data in profile", userData);
 
   useEffect(() => {
-    if (userData) {
-      setName(userData.name);
+    if (userData && posts) {
+      setName(userData.name || "");
       setBio(userData.bio || "");
-      const posts_copy = [...posts];
-      const uid = userData.userId;
-      const albums = getAlbums(posts_copy, uid);
-      setAlbums(albums);
+      const postsCopy = [...posts];
+      const uid = userData.userId as string;
+      const userAlbums = getAlbums(postsCopy, uid);
+      setAlbums(userAlbums);
     }
-  }, [userData]);
+  }, [userData, posts]);
 
-  const getAlbums = (posts, uid) => {
-    const result = posts.filter((p) => p.userId === uid);
-    console.log(result);
-    return result;
+  const getAlbums = (posts: PostType[], uid: string) => {
+    return posts.filter((p) => p.userId === uid);
   };
 
-  const handleName = (name) => {
-    setUserData((prev) => ({
-      ...prev,
-      name: name,
+  const handleName = (name: string) => {
+    setUserData?.((prev) => ({
+      userId: prev?.userId ?? "", // Fallback to an empty string if userId is undefined or null
+      name,
+      bio: prev?.bio,
+      photoURL: prev?.photoURL,
+      heroURL: prev?.heroURL,
     }));
   };
 
-  const handleBio = (bio) => {
-    setUserData((prev) => ({
-      ...prev,
-      bio: bio,
+  const handleBio = (bio: string) => {
+    setUserData?.((prev) => ({
+      userId: prev?.userId ?? "", // Default to an empty string if prev or userId is null/undefined
+      name: prev?.name ?? "", // Default name to an empty string if prev or name is null/undefined
+      bio,
+      photoURL: prev?.photoURL,
+      heroURL: prev?.heroURL,
     }));
   };
 
   const handleSave = async () => {
     console.log("userData", userData);
 
-    if (!userData.userId) {
+    if (!userData?.userId) {
       console.error("User ID (uid) is undefined.");
       alert("An error occurred. Please log in again.");
       return;
@@ -75,10 +82,8 @@ const Profile = () => {
     }
   };
 
-  // if (!userData) return <div>Loading...</div>;
-
-  {
-    !userData && (
+  if (!userData) {
+    return (
       <div className="absolute top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center">
         <div className="profile-loader"></div>
       </div>
@@ -95,7 +100,7 @@ const Profile = () => {
           userData={userData}
         />
         {isEditable ? (
-          <div className="p-4 mt-12 flex flex-col justify-between">
+          <div className="p-4 mt-20 flex flex-col justify-between">
             <div>
               <label>Name</label>
               <input
@@ -103,7 +108,6 @@ const Profile = () => {
                 className="bg-transparent block w-full border-b-2 border-gray-300 focus:outline-none focus:border-black-500 w-full mt-2 mb-6 font-semibold text-sm"
                 placeholder="Enter your name"
                 value={name}
-                // onChange={(e) => setName(e.target.value)}
                 onChange={(e) => handleName(e.target.value)}
               />
 
@@ -112,7 +116,6 @@ const Profile = () => {
                 className="bg-transparent block w-full border-b-2 border-gray-300 focus:outline-none focus:border-black-500 w-full mt-2 font-semibold text-sm "
                 value={bio}
                 placeholder="Enter a short bio"
-                // onChange={(e) => setBio(e.target.value)}
                 onChange={(e) => handleBio(e.target.value)}
               />
             </div>
