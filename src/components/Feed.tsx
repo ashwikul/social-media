@@ -1,7 +1,7 @@
 import Header from "./Header";
 import Post from "./Post";
 import { SocialMediaContext } from "../context/SocialMediaContext";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   getFirestore,
   doc,
@@ -9,54 +9,75 @@ import {
   collection,
   getDocs,
 } from "firebase/firestore";
+import {
+  getAuth,
+  signInWithCredential,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 const Feed = () => {
   const { uid, setUserData, posts, setPosts } = useContext(SocialMediaContext);
+  const [isLoading, setIsLoading] = useState(true); // Loading state for user and posts
+  const [error, setError] = useState(""); // Error handling state
 
   useEffect(() => {
-    if (uid) {
-      // Fetch user data from Firestore when `uid` is available
-      const fetchUserData = async () => {
-        console.log("hi");
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
 
+    // Listen for changes in the user's authentication state
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is signed in, so you can fetch user data and posts
+        console.log("User is already signed in:", user);
+
+        // Fetch user data
         const db = getFirestore();
-        console.log("hello");
-
-        const docRef = doc(db, "users", uid); // Assume 'users' is the collection
+        const docRef = doc(db, "users", user.uid); // Assuming 'users' is your collection
         const docSnap = await getDoc(docRef);
-
         if (docSnap.exists()) {
           setUserData(docSnap.data());
         } else {
           console.log("No such document!");
         }
-      };
 
-      const fetchPosts = async () => {
-        try {
-          const db = getFirestore();
-          const postsCollection = collection(db, "posts"); // 'posts' is assumed to be a collection
-          const querySnapshot = await getDocs(postsCollection);
+        // Fetch posts
+        const postsCollection = collection(db, "posts");
+        const querySnapshot = await getDocs(postsCollection);
+        const fetchedPosts = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPosts(fetchedPosts);
 
-          const fetchedPosts = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-
-          setPosts(fetchedPosts);
-        } catch (error) {
-          console.error("Error fetching posts:", error);
-        }
-      };
-
-      if (uid) {
-        fetchUserData();
-        fetchPosts();
+        setIsLoading(false);
+      } else {
+        // User is not signed in, show an error or login prompt
+        console.log("No user signed in");
+        setError("No user signed in. Please log in.");
+        setIsLoading(false);
       }
-    }
-  }, [uid, setUserData, setPosts]);
+    });
+
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
+  }, [setUserData, setPosts]);
 
   console.log("posts", posts);
+
+  if (isLoading) {
+    // return <div>Loading...</div>; // Show loading state while fetching data
+    return (
+      <div className="absolute top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center">
+        <div className="profile-loader"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div>{error}</div>; // Display any error message
+  }
 
   return (
     <div className="sm:w-ful md:w-1/2 p-4">

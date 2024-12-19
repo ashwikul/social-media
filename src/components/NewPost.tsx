@@ -213,6 +213,7 @@ const NewPost = ({ setAddNewPost }) => {
           ></textarea>
         </div>
 
+        {/* choose file */}
         <div className="hidden lg:block">
           <input
             type="file"
@@ -230,7 +231,8 @@ const NewPost = ({ setAddNewPost }) => {
           </label>
         </div>
 
-        <div className="sm:block md:hidden lg:hidden">
+        {/* photos */}
+        <div className="sm:block lg:hidden">
           <input
             type="file"
             accept="image/*"
@@ -247,12 +249,13 @@ const NewPost = ({ setAddNewPost }) => {
           </label>
         </div>
 
-        <div className="sm:block md:hidden lg:hidden">
+        {/* videos */}
+        <div className="sm:block lg:hidden">
           <input
             type="file"
             accept="video/*"
             onChange={handleFileChange}
-            className="hidden sm:block md:hidden"
+            className="hidden"
             id="videoInput"
           />
           <label

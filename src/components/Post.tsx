@@ -3,9 +3,11 @@ import lebertyStatue from "../assets/libertyStatue.png";
 import heart from "../assets/HiHeart.svg";
 import send from "../assets/navigation-2.svg";
 const Post = ({ post }) => {
+  console.log("post", post);
+
   return (
     <div className="w-full rounded-3xl bg-[#F7EBFF] p-3 flex flex-col gap-2 mb-3">
-      <PostHeader userId={post.userId} />
+      <PostHeader userId={post.userId} timestamp={post.timestamp} />
       <p className="text-xs font-normal">{post.caption}</p>
       {post.gallery.length > 0 && (
         // <div className="w-full rounded-3xl overflow-hidden relative">
